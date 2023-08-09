@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.notes.notes.domain.model.Note
 import com.example.notes.notes.domain.use_case.NoteUseCases
 import com.example.notes.notes.domain.util.NoteOrder
+import com.example.notes.notes.domain.util.OrderType
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -20,6 +22,12 @@ class NotesViewModel @Inject constructor(
     val state: State<NotesState> = _state
 
     private var recentlyDeletedNote: Note? = null
+
+    private var getNotesJob: Job? = null
+
+    init {
+        getNotes(NoteOrder.Date(OrderType.Descending))
+    }
 
     fun onEvent(event: NotesEvent) {
         when (event) {
@@ -55,7 +63,8 @@ class NotesViewModel @Inject constructor(
     }
 
     private fun getNotes(noteOrder: NoteOrder) {
-        noteUseCases.getNotes(noteOrder)
+        getNotesJob?.cancel()
+        getNotesJob = noteUseCases.getNotes(noteOrder)
             .onEach { notes ->
                 _state.value = state.value.copy(notes = notes, noteOrder = noteOrder)
             }.launchIn(viewModelScope)

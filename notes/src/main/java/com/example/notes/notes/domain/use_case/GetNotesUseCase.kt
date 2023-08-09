@@ -46,5 +46,4 @@ class GetNotesUseCase @Inject constructor(
         }
         }
     }
-
 }
