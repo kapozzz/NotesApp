@@ -36,88 +36,84 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.notes.notes.presentation.notes.components.NoteItem
 import com.example.notes.notes.presentation.notes.components.OrderSection
-import javax.inject.Inject
 
-class NotesScreen @Inject constructor(
-    private val navController: NavController,
-    private val viewModel: NotesViewModel
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun NotesScreen(
+    navController: NavController,
+    viewModel: NotesViewModel
 ) {
+    val state = viewModel.state.value
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
 
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-    @Composable
-    fun Screen() {
-        val state = viewModel.state.value
-        val scaffoldState = rememberScaffoldState()
-        val scope = rememberCoroutineScope()
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
 
-        Scaffold(
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
+                },
+                backgroundColor = MaterialTheme.colors.primary
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+            }
+        },
+        scaffoldState = scaffoldState
+    ) {
 
-                    },
-                    backgroundColor = MaterialTheme.colors.primary
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-                }
-            },
-            scaffoldState = scaffoldState
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        text = "Your note",
-                        style = MaterialTheme.typography.h4
-                    )
-                    IconButton(
-                        onClick = {
-                            viewModel.onEvent(NotesEvent.ToggleOrderSection)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Sort,
-                            contentDescription = "Sort"
-                        )
+                Text(
+                    text = "Your note",
+                    style = MaterialTheme.typography.h4
+                )
+                IconButton(
+                    onClick = {
+                        viewModel.onEvent(NotesEvent.ToggleOrderSection)
                     }
-                }
-                AnimatedVisibility(
-                    visible = state.isOrderSectionVisible,
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
                 ) {
-                    OrderSection(
+                    Icon(
+                        imageVector = Icons.Default.Sort,
+                        contentDescription = "Sort"
+                    )
+                }
+            }
+            AnimatedVisibility(
+                visible = state.isOrderSectionVisible,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut() + slideOutVertically()
+            ) {
+                OrderSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    noteOrder = state.noteOrder,
+                    onOrderChange = {
+                        viewModel.onEvent(NotesEvent.Order(it))
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(state.notes) { note ->
+                    NoteItem(
+                        note = note,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        noteOrder = state.noteOrder,
-                        onOrderChange = {
-                            viewModel.onEvent(NotesEvent.Order(it))
-                        }
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.notes) { note ->
-                        NoteItem(
-                            note = note,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
+                            .clickable {
 
-                                }
-                        )
-                    }
+                            }
+                    )
                 }
             }
         }
