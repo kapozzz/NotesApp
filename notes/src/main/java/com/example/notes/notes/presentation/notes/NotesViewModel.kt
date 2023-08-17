@@ -1,15 +1,14 @@
 package com.example.notes.notes.presentation.notes
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notes.notes.domain.model.Note
 import com.example.notes.notes.domain.use_case.NoteUseCases
 import com.example.notes.notes.domain.util.NoteOrder
 import com.example.notes.notes.domain.util.OrderType
-import com.example.notes.notes.presentation.add_edit_note.AddEditNoteViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -28,18 +27,19 @@ class NotesViewModel @Inject constructor(
     private var getNotesJob: Job? = null
 
     init {
-        getNotes(NoteOrder.Date(OrderType.Descending))
+        getNotes(NoteOrder.Date(OrderType.Descending), state.value.searchQuery)
     }
 
     fun onEvent(event: NotesEvent) {
         when (event) {
             is NotesEvent.Order -> {
                 if (state.value.noteOrder::class == event.noteOrder::class &&
-                    state.value.noteOrder.orderType == event.noteOrder.orderType
+                    state.value.noteOrder.orderType == event.noteOrder.orderType &&
+                    state.value.searchQuery == event.searchQuery
                 ) {
                     return
                 }
-                getNotes(event.noteOrder)
+                getNotes(event.noteOrder, event.searchQuery)
             }
 
             is NotesEvent.DeleteNote -> {
@@ -64,12 +64,16 @@ class NotesViewModel @Inject constructor(
         }
     }
 
-    private fun getNotes(noteOrder: NoteOrder) {
+    private fun getNotes(noteOrder: NoteOrder, searchQuery: String) {
         getNotesJob?.cancel()
-        getNotesJob = noteUseCases.getNotes(noteOrder)
+        getNotesJob = noteUseCases.getNotes(noteOrder, searchQuery)
             .onEach { notes ->
-                _state.value = state.value.copy(notes = notes, noteOrder = noteOrder)
+                _state.value = state.value.copy(
+                    notes = notes,
+                    noteOrder = noteOrder,
+                    searchQuery = searchQuery
+                )
+                Log.d("NEW ORDER", "SEARCH QUERY: ${searchQuery}")
             }.launchIn(viewModelScope)
     }
-
 }

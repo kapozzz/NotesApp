@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class NoteApp : Application() {
 
-    private lateinit var appComponent: AppComponent
+    lateinit var appComponent: AppComponent
 
     @Inject
     lateinit var database: NoteDatabase
@@ -20,10 +20,13 @@ class NoteApp : Application() {
         appComponent.inject(this)
     }
 
-    fun Context.appComponent(): AppComponent {
-        return when (this) {
-            applicationContext -> appComponent
-            else -> this.applicationContext.appComponent()
+    val Context.appComponent: AppComponent
+        get() {
+            return if (this is NoteApp) {
+                this.appComponent
+            } else {
+                this.applicationContext.appComponent
+            }
         }
-    }
+
 }

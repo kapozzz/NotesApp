@@ -1,5 +1,6 @@
 package com.example.notes.notes.presentation.add_edit_note
 
+
 import  androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -16,16 +17,19 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-
 class AddEditNoteViewModel @AssistedInject constructor(
     private val noteUseCases: NoteUseCases,
-    @Assisted("noteId") private val savedStateHandle: SavedStateHandle
+    @Assisted(value = "noteId") private val noteId: String
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(@Assisted("noteId") noteId: String): AddEditNoteViewModel.Factory
+        fun create(
+            @Assisted(value = "noteId") noteId: String
+        ): AddEditNoteViewModel
     }
+
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle()
 
     private var currentNoteId: String? = null
 
@@ -50,6 +54,7 @@ class AddEditNoteViewModel @AssistedInject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     init {
+        savedStateHandle.set("noteId", noteId)
         savedStateHandle.get<String>("noteId")?.let { noteId ->
              if (noteId != "-1") {
                  viewModelScope.launch {
@@ -68,7 +73,6 @@ class AddEditNoteViewModel @AssistedInject constructor(
                  }
              }
         }
-
     }
 
     fun onEvent(event: AddEditNoteEvent) {

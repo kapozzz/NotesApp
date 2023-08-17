@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,11 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -53,11 +54,11 @@ fun AddEditNoteScreen(
 
     val scaffoldState = rememberScaffoldState()
 
-    val noteBackgroundAnimatable = remember {
-        Animatable(
-            Color(if (noteColor != -1) noteColor else viewModel.noteColor.value)
-        )
-    }
+//    val noteBackgroundAnimatable = remember {
+//        Animatable(
+//            Color(if (noteColor != -1) noteColor else viewModel.noteColor.value)
+//        )
+//    }
 
     val scope = rememberCoroutineScope()
 
@@ -82,7 +83,7 @@ fun AddEditNoteScreen(
                 onClick = {
                     viewModel.onEvent(AddEditNoteEvent.SaveNote)
                 },
-                backgroundColor = MaterialTheme.colors.primary
+                backgroundColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
             }
@@ -92,7 +93,7 @@ fun AddEditNoteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(noteBackgroundAnimatable.value)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
             Row(
@@ -106,24 +107,25 @@ fun AddEditNoteScreen(
                     Box(
                         modifier = Modifier
                             .size(50.dp)
-                            .shadow(15.dp, CircleShape)
                             .clip(CircleShape)
+                            .shadow(15.dp, CircleShape)
                             .background(color)
                             .border(
                                 width = 3.dp,
                                 color = if (viewModel.noteColor.value == colorInt) {
                                     Color.Black
-                                } else Color.Transparent
+                                } else Color.Transparent,
+                                shape = CircleShape
                             )
                             .clickable {
-                                scope.launch {
-                                    noteBackgroundAnimatable.animateTo(
-                                        targetValue = Color(colorInt),
-                                        animationSpec = tween(
-                                            durationMillis = 500
-                                        )
-                                    )
-                                }
+//                                scope.launch {
+//                                    noteBackgroundAnimatable.animateTo(
+//                                        targetValue = Color(colorInt),
+//                                        animationSpec = tween(
+//                                            durationMillis = 500
+//                                        )
+//                                    )
+//                                }
                                 viewModel.onEvent(AddEditNoteEvent.ChangeColor(colorInt))
                             }
                     ) {
@@ -143,7 +145,7 @@ fun AddEditNoteScreen(
                 },
                 isHintVisible = titleState.isHintVisible,
                 singleLine = true,
-                textStyle = MaterialTheme.typography.h5
+                textStyle = MaterialTheme.typography.titleSmall
             )
             Spacer(modifier = Modifier.height(16.dp))
             TransparentTextField(
@@ -152,12 +154,12 @@ fun AddEditNoteScreen(
                 onValueChange = {
                     viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
                 },
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier.fillMaxSize(),
                 onFocusChange = {
                     viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
                 },
                 isHintVisible = contentState.isHintVisible,
-                textStyle = MaterialTheme.typography.body1
+                textStyle = MaterialTheme.typography.bodySmall
             )
         }
     }

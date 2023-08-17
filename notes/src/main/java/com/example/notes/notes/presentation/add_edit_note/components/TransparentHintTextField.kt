@@ -3,6 +3,7 @@ package com.example.notes.notes.presentation.add_edit_note.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,7 +20,8 @@ fun TransparentTextField(
     onValueChange: (String) -> Unit,
     textStyle: androidx.compose.ui.text.TextStyle = androidx.compose.ui.text.TextStyle(),
     singleLine: Boolean = false,
-    onFocusChange: (FocusState) -> Unit
+    onFocusChange: (FocusState) -> Unit,
+
 ) {
     
     Box(
@@ -38,6 +40,8 @@ fun TransparentTextField(
         ) {
             if (isHintVisible) {
                 Text(text = hint, style = textStyle, color = Color.DarkGray)
+            } else {
+                Text(text = text, style = textStyle, color = MaterialTheme.colors.onSurface)
             }
         }
     }
